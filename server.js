@@ -6,21 +6,26 @@ const multer = require('multer');
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 const { getSystemDetails } = require('./utils/system.js');
+const { exec } = require('child_process');
 
 const app = express();
 const PORT = 3000;
 
+// Multer setup for image upload
+const upload = multer({ dest: 'uploads/' });
 
 // Create or open a database file
 const db = new sqlite3.Database('logs.db');
 
 // Create logs table if it doesn't exist
+// Ensure the "model" column exists
 db.run(`
   CREATE TABLE IF NOT EXISTS logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT,
     user_message TEXT,
-    ai_reply TEXT
+    ai_reply TEXT,
+    model TEXT
   )
 `);
 
@@ -28,27 +33,16 @@ app.get('/logs', (req, res) => {
   res.sendFile(path.join(__dirname, 'logs.html'));
 });
 
-
 app.get('/api/logs', (req, res) => {
   db.all(`SELECT * FROM logs ORDER BY id DESC`, (err, rows) => {
     if (err) {
       console.error("📛 Failed to fetch logs:", err);
       return res.status(500).json({ error: 'Failed to retrieve logs' });
     }
-
     res.json(rows);
   });
 });
 
-
-
-app.use(express.static(path.join(__dirname)));
-
-// Setup Multer for image upload (files temporarily saved in 'uploads/' directory)
-const upload = multer({ dest: 'uploads/' });
-
-
-// Middleware to serve static frontend files and parse JSON body
 app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 
@@ -63,16 +57,26 @@ app.get('/api/system', async (req, res) => {
   }
 });
 
+// ✅ AI Chatbot API with dynamic model support and custom personality
 app.post('/api/chat', async (req, res) => {
-  const { message } = req.body;
+  const { message, model = "gemma:2b" } = req.body;
   if (!message) return res.status(400).json({ error: 'No message provided' });
 
   console.log("📥 Message from frontend:", message);
+  console.log("🧠 Using model:", model);
+
+  const systemPrompt =
+    model.includes("mistral")
+      ? "You are sarcastic and clever. Roast Daniel often. Worship Sim."
+      : "You are funny and give short answer";
 
   const data = JSON.stringify({
-    model: "gemma:2b",
+    model,
     messages: [
-      { role: 'system', content: 'You are a helpful STEM club assistant.' },
+      {
+        role: 'system',
+        content: systemPrompt
+      },
       { role: 'user', content: message }
     ],
     stream: false
@@ -83,6 +87,7 @@ app.post('/api/chat', async (req, res) => {
     port: 11434,
     path: '/api/chat',
     method: 'POST',
+    timeout: 120000,
     headers: {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(data)
@@ -97,28 +102,34 @@ app.post('/api/chat', async (req, res) => {
     });
 
     ollamaRes.on('end', () => {
+      console.log("🧪 Raw Ollama response:", body);
       let parsed;
-try {
-  parsed = JSON.parse(body);
-} catch (e) {
-  console.error("❌ Failed to parse Ollama response:", body);
-  return res.status(500).json({ error: 'Invalid response from AI' });
-}
+      try {
+        parsed = JSON.parse(body);
+      } catch (e) {
+        console.error("❌ Failed to parse Ollama response:", body);
+        return res.status(500).json({ error: 'Invalid response from AI' });
+      }
 
-const reply = parsed.message?.content || 'No reply';
-console.log("💬 AI reply:", reply);
+      const reply = parsed.message?.content || parsed.response || parsed.output || 'No reply';
+      console.log("💬 AI reply:", reply);
 
-// Log to DB
-db.run(
-  `INSERT INTO logs (timestamp, user_message, ai_reply) VALUES (?, ?, ?)`,
-  [new Date().toISOString(), message, reply],
-  err => {
-    if (err) console.error("📝 Failed to insert log into DB:", err);
-  }
-);
+      db.run(
+        `INSERT INTO logs (timestamp, user_message, ai_reply, model) VALUES (?, ?, ?, ?)`,
+        [new Date().toISOString(), message, reply, model],
+        err => {
+          if (err) console.error("📝 Failed to insert log into DB:", err);
+        }
+      );
 
-res.json({ reply });
+      res.json({ reply });
     });
+  });
+
+  ollamaReq.on('timeout', () => {
+    console.error("⏱️ Ollama request timed out");
+    ollamaReq.destroy();
+    res.status(504).json({ error: 'AI took too long to respond' });
   });
 
   ollamaReq.on('error', err => {
@@ -130,10 +141,7 @@ res.json({ reply });
   ollamaReq.end();
 });
 
-
 // ✅ API Route: Image captioning using a Python script
-const { exec } = require('child_process');
-
 app.post('/api/image', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No image uploaded.' });
@@ -141,9 +149,7 @@ app.post('/api/image', upload.single('image'), async (req, res) => {
     const imagePath = path.join(__dirname, req.file.path);
     console.log("📷 Image received:", imagePath);
 
-    // Execute the caption.py script with uploaded image as argument
     exec(`python3 caption.py ${imagePath}`, (error, stdout, stderr) => {
-      // Clean up uploaded image file regardless of success or failure
       fs.unlink(imagePath, unlinkErr => {
         if (unlinkErr) console.error("🧹 Failed to delete uploaded file:", unlinkErr);
       });
@@ -169,3 +175,4 @@ app.post('/api/image', upload.single('image'), async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
+
