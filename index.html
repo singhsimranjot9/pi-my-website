@@ -9,21 +9,216 @@
   <link rel="icon" type="image/png" href="https://i.imgflip.com/4/4t0m5.jpg" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #F5EDED; color: #333; scroll-behavior: smooth; }
-    .navbar-custom { background-color: #6482AD; }
-    .navbar-custom .nav-link, .navbar-custom .navbar-brand { color: white; }
-    .hero { background-image: url('https://i.imgflip.com/4/4t0m5.jpg'); background-size: cover; background-position: center; background-attachment: fixed; color: white; padding: 100px 20px; text-align: center; }
-    .hero h1, .hero p { text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6); }
-    .section { padding: 60px 20px; }
-    .zigzag:nth-child(even) { flex-direction: row-reverse; }
-    .zigzag img { max-width: 100%; border-radius: 10px; }
-    .section-title { font-weight: bold; color: #6482AD; }
-    .footer { background-color: #E2DAD6; text-align: center; padding: 30px; font-size: 14px; color: #555; }
-    .team-carousel { width: 100%; max-width: 900px; margin: auto; height: auto; }
-    .transition-slider { transition: transform 3s ease-in-out; }
-    .team-carousel-wrapper { max-width: 1000px; margin: auto; overflow: hidden; }
-    #teamSlider { display: flex; transition: transform 10s ease-in-out; }
-    .team-member { width: 33.3333%; flex-shrink: 0; }
+/* 🌍 General Layout Styles */
+body {
+  background-color: #F5EDED;
+  color: #333;
+  scroll-behavior: smooth;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* 🌐 Navbar Styling */
+.navbar-custom {
+  background-color: #6482AD;
+}
+.navbar-custom .nav-link,
+.navbar-custom .navbar-brand {
+  color: white;
+}
+
+/* 🦸 Hero Section */
+.hero {
+  background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* 🔥 vertical centering */
+  text-align: center;
+  position: relative;
+  flex-direction: column;
+  padding: 0 20px;
+}
+
+.hero h1,
+.hero p {
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* 🔤 Section Styling */
+.section {
+  padding: 60px 20px;
+}
+.zigzag:nth-child(even) {
+  flex-direction: row-reverse;
+}
+.zigzag img {
+  max-width: 100%;
+  border-radius: 10px;
+}
+.section-title {
+  font-weight: bold;
+  color: #6482AD;
+}
+
+/* 🧑‍🤝‍🧑 Footer */
+.footer {
+  background-color: #E2DAD6;
+  text-align: center;
+  padding: 30px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* 🎠 Team Carousel */
+.team-carousel {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  height: auto;
+}
+.transition-slider {
+  transition: transform 3s ease-in-out;
+}
+.team-carousel-wrapper {
+  max-width: 1000px;
+  margin: auto;
+  overflow: hidden;
+}
+#teamSlider {
+  display: flex;
+  transition: transform 10s ease-in-out;
+}
+.team-member {
+  width: 33.3333%;
+  flex-shrink: 0;
+}
+
+/* ✨ Utility: Text Shadow */
+.text-shadow {
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* 📦 Wrapper around Title + Floating Words */
+.hero-content-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-top: 80px;
+}
+
+/* 🏷️ Title Section */
+.club-title-elegant {
+  margin-top: 0; /* 🔥 remove vertical offset */
+  position: relative;
+  z-index: 2;
+}
+
+
+.club-line {
+  overflow: hidden;
+  border-left: 3px solid rgba(255,255,255,0.6);
+  border-right: 3px solid rgba(255,255,255,0.6);
+  font-weight: 900;
+  font-size: 5rem;
+  color: #ffffff;
+  animation: typing 2s steps(20, end) forwards, blink 0.75s step-end infinite;
+  margin: 0;
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+}
+
+.club-line.step1 { padding-left: 0rem; animation-delay: 0s; }
+.club-line.step2 { padding-left: 0rem; animation-delay: 0.4s; }
+.club-line.step3 { padding-left: 0rem; animation-delay: 0.8s; }
+.club-line.step4 {
+  padding-left: 0rem;
+  animation-delay: 1.2s;
+  font-size: 6rem;
+  color: #f8f9fa;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink {
+  50% { border-color: transparent }
+}
+
+/* Floating Word Cloud Animation */
+.floating-words {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0; /* Below title text */
+}
+
+
+.floating-words span {
+  position: absolute;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  animation: floatWord 8s infinite ease-in-out;
+  opacity: 0;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+}
+
+@keyframes floatWord {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(calc(-50px + 100px * random()), -80px); opacity: 0.8; }
+  100% { transform: translate(calc(-100px + 200px * random()), -150px); opacity: 0; }
+}
+
+/* Random placement for each word */
+.floating-words span:nth-child(1) { top: 0%; left: 10%; animation-delay: 0s; }
+.floating-words span:nth-child(2) { top: 30%; left: 80%; animation-delay: 1s; }
+.floating-words span:nth-child(3) { top: 40%; left: 20%; animation-delay: 2s; }
+.floating-words span:nth-child(4) { top: 60%; left: 70%; animation-delay: 3s; }
+.floating-words span:nth-child(5) { top: 10%; left: 50%; animation-delay: 4s; }
+.floating-words span:nth-child(6) { top: 70%; left: 30%; animation-delay: 5s; }
+.floating-words span:nth-child(7) { top: 50%; left: 90%; animation-delay: 6s; }
+.floating-words span:nth-child(8) { top: 80%; left: 40%; animation-delay: 7s; }
+.floating-words span:nth-child(9) { top: 25%; left: 60%; animation-delay: 8s; }
+.floating-words span:nth-child(10) { top: 65%; left: 15%; animation-delay: 9s; }
+
+@media (max-width: 768px) {
+  .club-title-elegant h1 {
+    font-size: 2.5rem !important;
+    text-align: center;
+    border-left: none;
+    border-right: 2px solid rgba(255,255,255,0.6);
+    border-left: 2px solid rgba(255,255,255,0.6); 
+    animation: typing 2s steps(15, end) forwards, blink 0.75s step-end infinite;
+  }
+
+  .club-line.step4 {
+    font-size: 3rem !important;
+  }
+
+  .hero {
+    padding: 20px;
+    height: auto;
+    min-height: 100vh;
+    background-attachment: scroll; /* disables fixed background for mobile */
+  }
+
+  .club-title-elegant {
+    display: block;
+    padding: 20px 10px;
+  }
+}
+
+.object-fit-cover {
+  object-fit: cover;
+  height: 100%;
+}
+
   </style>
 </head>
 
@@ -47,8 +242,28 @@
 
   <!-- Hero -->
   <header class="hero">
-    <h1 class="display-4">STEM Club</h1>
-    <p class="lead">Curious. Creative. Collaborative.</p>
+    
+    <div class="club-title-elegant text-center position-relative">
+      <h1 class="club-line step1">COMPUTER</h1>
+      <h1 class="club-line step2">&</h1>
+      <h1 class="club-line step3">ENGINEERING</h1>
+      <h1 class="club-line step4">CLUB</h1>
+    </div>
+    
+    <div class="floating-words">
+      <span>Innovate</span>
+      <span>Code</span>
+      <span>Teamwork</span>
+      <span>Robotics</span>
+      <span>Hack</span>
+      <span>Design</span>
+      <span>AI</span>
+      <span>Build</span>
+      <span>Creative</span>
+      <span>Collaborate</span>
+    </div>
+    
+
   </header>
 
   <!-- Mission Section -->
@@ -64,13 +279,39 @@
     </div>
   </section>
 
-  <!-- Activities Section -->
-  <section class="section bg-light" id="activities">
-    <div class="container">
-      <h2 class="section-title">What We Do</h2>
-      <p class="mt-3">Our club meets regularly to learn new technologies, build creative projects, host workshops, and work together as a team. We participate in hackathons, mentor each other, and share our skills in coding, electronics, and design.</p>
+<!-- Projects Section -->
+<section class="section bg-light" id="projects">
+  <div class="container-fluid px-0">
+    <h2 class="section-title">Projects</h2>
+
+
+    <!-- Project 21-->
+    <div class="row align-items-center flex-md-row-reverse g-0" style="min-height: 60vh; ">
+      <div class="col-md-6">
+        <img src="https://raw.githubusercontent.com/Gabryxx7/chatbot-node-rasa/master/imgs/screenshot1.PNG" alt="Node.js Chatbot" class="img-fluid w-100 h-100 object-fit-cover">
+      </div>
+      <div class="col-md-6 p-5 ">
+        <h2 class="fw-bold">AI Chatbot with Node.js</h2>
+        <p>This chatbot uses Node.js and OpenAI's API to power smart replies and analysis in real time.</p>
+        <a href="project2.html" class="btn btn-dark">View Project</a>
+      </div>
     </div>
-  </section>
+
+
+     <!-- Project 2 -->
+    <div class="row align-items-center g-0" style="min-height: 60vh; ">
+      <div class="col-md-6">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0aWKLEuJoiCFuQpMZy1GF56J_EIff8H4UyQ&s" alt="Arduino Project" class="img-fluid w-100 h-100 object-fit-cover">
+      </div>
+      <div class="col-md-6 p-5">
+        <h2 class="fw-bold">Arduino car</h2>
+        <p>A smart car that drive itself.</p>
+        <a href="project1.html" class="btn btn-dark">View Project</a>
+      </div>
+    </div>
+
+  </div>
+</section>
 
   <!-- Team Carousel Section -->
   <section class="section bg-white" id="team">
